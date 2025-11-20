@@ -1,13 +1,10 @@
-// typing_site_v_3_content.js
 export const PRELOAD_TXT = {
   enabled: true,
   files: [
-    { name: 'kor_eng_1.txt', text: `정보의 양이 폭발적으로 증가하는 시대에는 읽고 쓰는 속도 자체가 학습 효율을 좌우합니다.
-
-Keep practicing typing so that your hands can follow your thoughts. 꾸준한 연습은 긴 글을 읽고 요약하거나, 근거를 들어 설명하는 과정을 훨씬 수월하게 만들어 줍니다.` },
-    { name: 'kor_eng_2.txt', text: `In an increasingly interconnected world, learning to type accurately and efficiently remains a foundational skill for students.
-
-긴 글에서 핵심을 파악하고 구조화하여 표현하는 능력은 교과 전반의 이해도를 높입니다. With deliberate practice, you can focus on ideas rather than the keyboard.` }
+    {name: 'kor_eng_1.txt', 
+  text: `Indeed, the taxi driver and the construction worker are willing to accept money as payment only because a network of other agents is committed to taking various measures to sustain the currency in question. +{^o_<^)= 月 Ii11li|Il| Moreover, commitments make people willing to perform actions that they would not otherwise perform. 사실, 택시 기사와 건설 노동자가 돈을 보수로 기꺼이 받아들이는 것은 오로지 다른 주체들의 네트워크가 해당 통화를 유지하기 위한 다양한 조치를 취할 것을 약속했기 때문이다. 게다가, 약속은 사람들이 그렇지 않으면 수행하지 않을 행동을 기꺼이 수행하도록 만든다.` },
+{name: 'kor_eng_2.txt', 
+  text: `사실, 택시 기사와 건설 노동자가 돈을 보수로 기꺼이 받아들이는 것은 오로지 다른 주체들의 네트워크가 해당 통화를 유지하기 위한 다양한 조치를 취할 것을 약속했기 때문이다. 게다가, 약속은 사람들이 그렇지 않으면 수행하지 않을 행동을 기꺼이 수행하도록 만든다. Ii11li|Il| 火 +{^o_<^)= Indeed, the taxi driver and the construction worker are willing to accept money as payment only because a network of other agents is committed to taking various measures to sustain the currency in question. Moreover, commitments make people willing to perform actions that they would not otherwise perform.` }
   ]
 };
 
