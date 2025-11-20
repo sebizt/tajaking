@@ -219,12 +219,17 @@ function renderStream() {
   const cur = stream[streamIdx];   // {en, ko}
   const phaseLabel = phase === 0 ? '학생 먼저 ! (영어)' : '교사 먼저 ! (한국어)';
 
-  wordStream.innerHTML = `
-    <div style="margin-bottom:8px;">
-      <div class="muted" style="margin-top:4px; font-size:0.8rem;">${phaseLabel}</div>
-      <div style="font-size:1.4rem; font-weight:800;">${cur.en} / ${cur.ko}</div>
+wordStream.innerHTML = `
+  <div style="margin-bottom:8px; text-align:center;">
+    <div class="muted" style="margin-top:4px; font-size:1.2rem;">
+      ${phaseLabel}
     </div>
-  `;
+    <div style="font-size:2.4rem; font-weight:800;">
+      ${cur.en} / ${cur.ko}
+    </div>
+  </div>
+`;
+
 }
 
 function updateTgStats() {
