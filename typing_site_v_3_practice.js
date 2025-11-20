@@ -13,8 +13,47 @@ const pad2=(n)=>n<10?'0'+n:String(n);
   if (built) localStorage.setItem(DATA_KEY, JSON.stringify(built));
 })();
 
-// (상단 import/유틸/ensureUser 등 기존 코드 유지)
+// ---------- 단어 풀 (영–한 짝 단위) ----------
+function getWordPool() {
+  // DATA_KEY = 'typing_uploaded_txt_v3'
+  const up = JSON.parse(localStorage.getItem(DATA_KEY) || 'null');
+  if (up?.words?.length) return up.words;
 
+  // ✅ 업로드된 단어가 없을 때 기본 단어들 (영–한 짝 순서)
+  return [
+    'apple','사과',
+    'banana','바나나',
+    'practice','연습',
+    'typing','타이핑',
+    'speed','속도',
+    'accuracy','정확도',
+    'keyboard','키보드',
+    'idea','아이디어',
+    'focus','집중',
+    'evidence','근거'
+  ];
+}
+
+// ✅ 항상 "페어" 단위로 섞어서 N세트 반환
+function makeRandomWordStream(pairCount = 5) {
+  const raw = getWordPool();
+  const pairs = [];
+
+  // raw: [en,ko,en,ko,...] → [{en,ko}, ...]
+  for (let i = 0; i < raw.length - 1; i += 2) {
+    pairs.push({ en: raw[i], ko: raw[i + 1] });
+  }
+
+  // 페어 단위 셔플
+  for (let i = pairs.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pairs[i], pairs[j]] = [pairs[j], pairs[i]];
+  }
+
+  return pairs.slice(0, pairCount);   // 세트 개수
+}
+
+// ---------- 모드 적용 (혼자/함께) ----------
 (function applyMode(){
   const $ = (s)=>document.querySelector(s);
   const userInfoLabel = $('#userInfoLabel');
@@ -44,7 +83,7 @@ const pad2=(n)=>n<10?'0'+n:String(n);
   }
 })();
 
-
+// ---------- 긴 글(혼자하기) ----------
 function getParagraphPool(){
   const up = JSON.parse(localStorage.getItem(DATA_KEY) || 'null');
   if (up?.paragraphs?.length) return up.paragraphs;
@@ -89,13 +128,14 @@ function updateSoloStats(){
   }
 }
 
-// ===== 점수 제출 관련 (Firebase만 사용) =====
-let soloSubmitted = false;
-
+// ===== 공통: 유저 정보 =====
 function getUser() {
   const u = JSON.parse(localStorage.getItem('typing_user_v9') || localStorage.getItem('typing_user_v3') || 'null');
   return u && u.id && u.name ? u : { id: 'unknown', name: 'unknown' };
 }
+
+// ===== 혼자하기 점수 제출 =====
+let soloSubmitted = false;
 
 async function submitSoloScore() {
   if (soloSubmitted) return;
@@ -123,13 +163,13 @@ async function submitSoloScore() {
         accuracy,
         time_sec: elapsed
       });
-      console.log('[submit] Firebase 저장 완료');
+      console.log('[solo] Firebase 저장 완료');
     } catch (e) {
-      console.error('[submit] Firebase 저장 실패', e);
+      console.error('[solo] Firebase 저장 실패', e);
       alert('점수 저장에 실패했습니다. firebase_init.js가 올바르게 연결되었는지 확인하세요.');
     }
   } else {
-    alert('데이터 저장 준비가 안 되었습니다. firebase_init.js 로드 여부를 확인하세요.');
+    console.warn('[solo] TypingAPI.submitScore 없음');
   }
 }
 
@@ -142,7 +182,210 @@ function pickSolo(){
   soloSubmitted = false; // 새 라운드에서 다시 제출 가능
 }
 
-// 버튼 이벤트
+// ------------------------ 함께하기(단어) 모드 ------------------------
+const tgReady  = document.querySelector('#tgReady');
+const tgStart  = document.querySelector('#tgStart');
+const tgInput  = document.querySelector('#tgInput');
+const wordStream = document.querySelector('#wordStream');
+const tgCorrect = document.querySelector('#tgCorrect');
+const tgWrong   = document.querySelector('#tgWrong');
+const tgWpm     = document.querySelector('#tgWpm');
+const tgTime    = document.querySelector('#tgTime');
+const limitSec  = document.querySelector('#limitSec');
+
+let stream = [];        // [{en,ko}, ...]
+let streamIdx = 0;      // 현재 세트 인덱스
+let phase = 0;          // 0: 영어 입력 단계, 1: 한국어 입력 단계
+
+let tgTimer = 0;
+let tgRemain = 0;
+let tgCorrectN = 0;
+let tgWrongN = 0;
+let tgStartTs = 0;
+let tgStarted = false;
+let tgKeystrokes = 0;
+let tgSubmitted = false; // ✅ 함께하기 점수 중복저장 방지
+
+function renderStream() {
+  if (!tgStarted) {
+    wordStream.textContent = '시작을 누르면 단어 세트가 보입니다.';
+    return;
+  }
+  if (!stream.length || streamIdx >= stream.length) {
+    wordStream.innerHTML = '<span class="muted">🎉 모든 세트를 완료했습니다!</span>';
+    return;
+  }
+
+  const cur = stream[streamIdx];   // {en, ko}
+  const phaseLabel = phase === 0 ? '학생 먼저 ! (영어)' : '교사 먼저 ! (한국어)';
+
+  wordStream.innerHTML = `
+    <div style="margin-bottom:8px;">
+      <div class="muted" style="margin-top:4px; font-size:0.8rem;">${phaseLabel}</div>
+      <div style="font-size:1.4rem; font-weight:800;">${cur.en} / ${cur.ko}</div>
+    </div>
+  `;
+}
+
+function updateTgStats() {
+  const sec = tgStarted ? Math.max(1, (Date.now() - tgStartTs) / 1000) : 1;
+  const wpmVal = Math.round(tgCorrectN / (sec / 60));           // 세트 기준 WPM
+  const cpmVal = Math.round(tgKeystrokes / (sec / 60));         // 키 입력/분
+  const left = Math.max(0, tgRemain);
+  tgTime.textContent = `${pad2(Math.floor(left/60))}:${pad2(left%60)}`;
+  tgWpm.textContent = `${wpmVal} / ${cpmVal}타`;
+}
+
+// ✅ 함께하기 점수 제출
+async function submitTogetherScore(reason = 'done') {
+  if (tgSubmitted) return;
+  tgSubmitted = true;
+
+  const user = getUser();
+  const elapsed = tgStartTs ? Math.max(1, Math.floor((Date.now() - tgStartTs) / 1000)) : 1;
+  const totalAttempts = tgCorrectN + tgWrongN;
+  const accuracy = totalAttempts ? Math.round((tgCorrectN / totalAttempts) * 100) : 100;
+  const wpm = Math.round(tgCorrectN / (elapsed / 60));  // "정답 세트/분" 기준
+
+  if (window.TypingAPI && typeof window.TypingAPI.submitScore === 'function') {
+    try {
+      await window.TypingAPI.submitScore({
+        sid: user.id,
+        sname: user.pair,
+        mode: 'together',   // 🔹 리더보드에서 함께하기 모드로 구분할 값
+        wpm,
+        accuracy,
+        time_sec: elapsed,
+        reason               // 선택사항: 'done' | 'time' 같은 메타정보
+      });
+      console.log('[together] Firebase 저장 완료');
+    } catch (e) {
+      console.error('[together] Firebase 저장 실패', e);
+      alert('함께하기 점수 저장에 실패했습니다. firebase_init.js와 TypingAPI 설정을 확인하세요.');
+    }
+  } else {
+    console.warn('[together] TypingAPI.submitScore 없음');
+  }
+}
+
+function tickTogether() {
+  tgRemain--;
+  updateTgStats();
+  if (tgRemain <= 0) {
+    clearInterval(tgTimer);
+    tgStarted = false;
+    tgInput.disabled = true;
+    wordStream.innerHTML = '<span class="muted">⏰ 시간이 종료되었습니다.</span>';
+    submitTogetherScore('time');      // ⏰ 시간 종료 시 점수 저장
+  }
+}
+
+// 단어 세트 불러오기 버튼
+if (tgReady) {
+  tgReady.addEventListener('click', () => {
+    stream = makeRandomWordStream(5);  // 👉 세트 개수 (원하면 10으로 늘려도 됨)
+    streamIdx = 0;
+    phase = 0;
+    tgCorrectN = 0;
+    tgWrongN = 0;
+    tgKeystrokes = 0;
+    tgCorrect.textContent = '0';
+    tgWrong.textContent = '0';
+    tgWpm.textContent = '0';
+    tgTime.textContent = '00:00';
+    tgInput.value = '';
+    tgInput.disabled = true;
+    tgStarted = false;
+    tgSubmitted = false;              // 새 라운드 시작이므로 초기화
+    wordStream.textContent = '시작을 누르면 단어 세트가 보입니다.';
+  });
+}
+
+// 시작 버튼
+if (tgStart) {
+  tgStart.addEventListener('click', () => {
+    if (!stream.length) {
+      stream = makeRandomWordStream(5);
+    }
+    tgRemain = parseInt((limitSec && limitSec.value) || '60', 10) || 60;
+    tgStartTs = Date.now();
+    tgKeystrokes = 0;
+    tgStarted = true;
+    tgInput.disabled = false;
+    tgInput.value = '';
+    tgInput.focus();
+    clearInterval(tgTimer);
+    tgTimer = setInterval(tickTogether, 1000);
+    phase = 0;   // 항상 영어부터
+    tgSubmitted = false;
+    renderStream();
+    updateTgStats();
+  });
+}
+
+// 입력 이벤트
+if (tgInput) {
+  tgInput.addEventListener('keydown', (e) => {
+    // 키 입력 수 집계
+    if (e.key.length === 1 || ['Backspace','Space','Enter','Tab'].includes(e.key)) {
+      tgKeystrokes++;
+      updateTgStats();
+    }
+
+    if (e.key === ' ' || e.key === 'Enter') {
+      e.preventDefault();
+      if (!tgStarted) return;
+      if (!stream.length || streamIdx >= stream.length) return;
+
+      const cur = stream[streamIdx]; // {en, ko}
+      const attempt = (tgInput.value || '').trim();
+      if (!attempt) return;
+
+      const expected = phase === 0 ? (cur.en || '') : (cur.ko || '');
+      let isCorrect;
+
+      // 영어일 때는 대소문자 무시, 한국어는 그대로 비교
+      if (/^[A-Za-z]/.test(expected)) {
+        isCorrect = attempt.toLowerCase() === expected.toLowerCase();
+      } else {
+        isCorrect = attempt === expected;
+      }
+
+      if (isCorrect) {
+        tgCorrectN++;
+        tgCorrect.textContent = String(tgCorrectN);
+      } else {
+        tgWrongN++;
+        tgWrong.textContent = String(tgWrongN);
+      }
+
+      tgInput.value = '';
+
+      // ⚡ phase: 0 → 1 (영→한), 1 → 다음 세트
+      if (phase === 0) {
+        phase = 1;          // 이제 한국어 입력 단계
+        renderStream();
+      } else {
+        phase = 0;          // 다시 영어 단계로 리셋
+        streamIdx++;        // 다음 세트로 이동
+
+        if (streamIdx >= stream.length) {
+          tgStarted = false;
+          clearInterval(tgTimer);
+          tgInput.disabled = true;
+          wordStream.innerHTML = '<span class="muted">🎉 모든 세트를 완료했습니다!</span>';
+          submitTogetherScore('done');   // 🎉 세트 완주 시 점수 저장
+        } else {
+          renderStream();
+        }
+      }
+
+      updateTgStats();
+    }
+  });
+}
+
+// ---------- 혼자하기 버튼 이벤트 ----------
 soloNew.addEventListener('click', pickSolo);
 soloStart.addEventListener('click', ()=>{
   if (!soloText) pickSolo();

@@ -126,6 +126,60 @@ a {
   }
 }
 
+/* 리더보드 테이블 꾸미기 */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.table thead {
+  background: #ecfccb;
+}
+
+.table th,
+.table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(0,0,0,.04);
+  text-align: center;
+}
+
+.table th {
+  font-family: var(--font-accent);
+  font-weight: 800;
+  color: #14532d;
+}
+
+.lb-rank {
+  font-family: var(--font-accent);
+  font-weight: 900;
+  font-size: 1.1rem;
+}
+
+/* 1, 2, 3위 색 강조 */
+.lb-row--top1 .lb-rank {
+  color: #fbbf24; /* gold */
+  text-shadow: 0 0 6px rgba(250, 204, 21, .5);
+}
+.lb-row--top2 .lb-rank {
+  color: #9ca3af; /* silver */
+}
+.lb-row--top3 .lb-rank {
+  color: #f97316; /* bronze-ish */
+}
+
+/* 내 기록 강조 */
+.lb-row--me {
+  background: #fef3c7;
+  box-shadow: inset 0 0 0 2px #f97316;
+}
+
+/* 줄마다 살짝 호버 효과 */
+.lb-row:hover {
+  background: #f0fdf4;
+}
+
+
 .row {
   display:flex;
   align-items:center;
@@ -375,4 +429,80 @@ footer {
   border-radius:10px;
   font-size:18px;
   height:56px;
+}
+
+/* 리더보드 탭 버튼 */
+.lb-tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.btn.btn--sm {
+  min-width: auto;
+  height: 32px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  border-radius: 999px;
+}
+
+.lb-tab {
+  opacity: 0.6;
+}
+
+.lb-tab--active {
+  opacity: 1;
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, .7);
+}
+
+/* 리더보드 테이블 예쁘게 */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.table thead {
+  background: #ecfccb;
+}
+
+.table th,
+.table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(0,0,0,.04);
+  text-align: center;
+}
+
+.table th {
+  font-family: var(--font-accent);
+  font-weight: 800;
+  color: #14532d;
+}
+
+.lb-rank {
+  font-family: var(--font-accent);
+  font-weight: 900;
+  font-size: 1.1rem;
+}
+
+/* 1, 2, 3위 색 강조 */
+.lb-row--top1 .lb-rank {
+  color: #fbbf24;
+  text-shadow: 0 0 6px rgba(250, 204, 21, .5);
+}
+.lb-row--top2 .lb-rank {
+  color: #9ca3af;
+}
+.lb-row--top3 .lb-rank {
+  color: #f97316;
+}
+
+/* 내 기록 강조 */
+.lb-row--me {
+  background: #fef3c7;
+  box-shadow: inset 0 0 0 2px #f97316;
+}
+
+/* 줄마다 살짝 호버 효과 */
+.lb-row:hover {
+  background: #f0fdf4;
 }

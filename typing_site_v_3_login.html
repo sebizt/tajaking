@@ -22,21 +22,34 @@
 
   <main class="container">
     <section class="card card--win" aria-labelledby="title-login">
-      <div class="winbar"><span class="winbar__dot"></span><span id="title-login" class="winbar__title">입장하기</span></div>
+      <div class="winbar">
+        <span class="winbar__dot"></span>
+        <span id="title-login" class="winbar__title">입장하기</span>
+      </div>
       <div class="section-card">
         <form id="loginForm" action="./typing_site_v_3_practice.html" method="get" class="grid" style="gap:16px">
           <!-- 학번/이름 -->
           <div class="grid grid-2" style="grid-column:1/-1">
-            <label class="field"><span>학번</span><input id="studentId" name="sid" placeholder="예: 20401" autocomplete="off" required /></label>
-            <label class="field"><span>이름</span><input id="studentName" name="sname" placeholder="예: 홍길동" autocomplete="off" required /></label>
+            <label class="field">
+              <span>학번</span>
+              <input id="studentId" name="sid" placeholder="예: 20401" autocomplete="off" required />
+            </label>
+            <label class="field">
+              <span>이름</span>
+              <input id="studentName" name="sname" placeholder="예: 홍길동" autocomplete="off" required />
+            </label>
           </div>
 
           <!-- 모드 선택 -->
           <fieldset class="field" style="grid-column:1/-1">
             <span>연습 모드</span>
             <div class="row gap" style="gap:16px; padding-top:4px">
-              <label><input type="radio" name="mode" value="solo" checked> 혼자하기 (긴 글)</label>
-              <label><input type="radio" name="mode" value="together"> 함께하기 (단어)</label>
+              <label>
+                <input type="radio" name="mode" value="solo" checked> 혼자하기 (긴 글)
+              </label>
+              <label>
+                <input type="radio" name="mode" value="together"> 함께하기 (단어)
+              </label>
             </div>
           </fieldset>
 
@@ -69,41 +82,80 @@
       const teacherWrap = $('#teacherWrap');
       const teacherInput = $('#teacherName');
 
-      // 이전 기록 채우기
+      // 🔹 모드 라디오들
+      const modeRadios = form.querySelectorAll('input[name="mode"]');
+
+      // 🔹 이전 기록 채우기 (id, name, mode, teacher)
       try {
-        const u = JSON.parse(localStorage.getItem(USER_KEY)||'null');
-        if (u){ idEl.value = u.id||''; nameEl.value = u.name||''; }
+        const u = JSON.parse(localStorage.getItem(USER_KEY) || 'null');
+        if (u) {
+          if (u.id)   idEl.value = u.id;
+          if (u.name) nameEl.value = u.name;
+
+          // 저장된 모드 복원
+          if (u.mode === 'together' || u.mode === 'solo') {
+            modeRadios.forEach(radio => {
+              radio.checked = (radio.value === u.mode);
+            });
+
+            const together = (u.mode === 'together');
+            teacherWrap.style.display = together ? 'grid' : 'none';
+            teacherInput.required = together;
+          }
+
+          // 저장된 선생님 이름 복원
+          if (u.teacher) {
+            teacherInput.value = u.teacher;
+          }
+        }
       } catch(e){}
 
-      // 모드 토글 → 함께하기면 선생님 성함 보이기+필수
-      form.addEventListener('change', (e)=>{
-        const mode = new FormData(form).get('mode');
+      // 🔹 모드 변경 시: 함께하기면 선생님 성함 영역 보이고 필수
+      form.addEventListener('change', () => {
+        const fd = new FormData(form);
+        const mode = (fd.get('mode') || 'solo');
         const together = (mode === 'together');
         teacherWrap.style.display = together ? 'grid' : 'none';
         teacherInput.required = together;
       });
 
-      // 제출 검증 + localStorage 저장
+      // 🔹 제출 검증 + localStorage 저장
       form.addEventListener('submit', (e)=>{
         const fd = new FormData(form);
-        const id = (fd.get('sid')||'').trim();
-        const name = (fd.get('sname')||'').trim();
-        const mode = (fd.get('mode')||'solo');
-        const teacher = (fd.get('teacher')||'').trim();
+        const id = (fd.get('sid') || '').trim();
+        const name = (fd.get('sname') || '').trim();
+        const mode = (fd.get('mode') || 'solo');
+        const teacher = (fd.get('teacher') || '').trim();
 
-        if (!id || !name){
-          e.preventDefault(); msg.textContent = '학번과 이름을 모두 입력하세요.'; return;
+        if (!id || !name) {
+          e.preventDefault();
+          msg.textContent = '학번과 이름을 모두 입력하세요.';
+          return;
         }
-        if (mode === 'together' && !teacher){
-          e.preventDefault(); msg.textContent = '함께하기를 선택하면 선생님 성함을 입력해야 합니다.'; return;
+        if (mode === 'together' && !teacher) {
+          e.preventDefault();
+          msg.textContent = '함께하기를 선택하면 선생님 성함을 입력해야 합니다.';
+          return;
         }
-        try { localStorage.setItem(USER_KEY, JSON.stringify({id,name})); } catch(_){}
-        // 기본 제출 → practice.html?sid=..&sname=..&mode=..&teacher=..
+
+        // 🔹 "학생 + 교사" 형식 문자열
+        const pairLabel = (mode === 'together' && teacher)
+          ? `${name} & ${teacher}`
+          : `${name}`;
+
+        // 🔹 localStorage에 모드/교사까지 모두 저장
+        const payload = { id, name, mode, teacher, pair: pairLabel };
+
+        try {
+          localStorage.setItem(USER_KEY, JSON.stringify(payload));
+        } catch(_) {}
+
+        // 기본 submit → typing_site_v_3_practice.html?sid=..&sname=..&mode=..&teacher=..
       });
     })();
   </script>
+
   <!-- firebase 초기화 먼저 -->
   <script type="module" src="firebase_init.js"></script>
-
 </body>
 </html>
