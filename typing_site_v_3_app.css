@@ -235,6 +235,8 @@ a {
   flex-direction:column;
   gap:6px;
   padding:12px;
+  align-items:center;
+  justify-content:center;
 }
 .field span {
   font-size:12px;
