@@ -16,12 +16,12 @@ export function parseTxt(raw){
   'apple', '사과',
   'banana', '바나나',
   'practice', '연습',
-  'typing', '타자왕될거야',   // 대응 한국어가 없어서 기본 번역으로 넣음
-  'speed', '속도',
-  'accuracy', '정확도',
-  'keyboard', '키보드',
-  'idea', '아이디어',
-  'focus', '집중',
+  'typing', '타자왕이될거야',   // 대응 한국어가 없어서 기본 번역으로 넣음
+  '속도', 'speeeeeed',
+  '인공지능', 'ArtificialIntelligence',
+  '선생님', 'teacher',
+  'cheonanohsunghighschool', '천안오성고등학교',
+  'focus', '집중하세욧',
   'evidence', '근거'
 
 
