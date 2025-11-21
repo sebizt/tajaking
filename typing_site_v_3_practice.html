@@ -50,13 +50,13 @@
           <header class="section-title">함께하기 (단어)</header>
           <div class="grid grid-3">
             <!-- <label class="field"><span>세션 코드</span><input id="roomCode" placeholder="예: class3-2" /></label> -->
-            <label class="field"><span>제한 시간</span>
-              <select id="limitSec">
-                <!-- <option value="30">30초</option> -->
-                <option value="300" selected>300초</option>
-                <!-- <option value="120">120초</option> -->
-              </select>
-            </label>
+            <div hidden>
+              <label class="field"><span>제한 시간</span>
+                <select id="limitSec">
+                  <option value="300" selected>300초</option>
+                </select>
+              </label>
+            </div>
             <div class="field field--buttons">
               <button id="tgReady" class="btn">단어 불러오기</button>
               <button id="tgStart" class="btn btn--primary">시작</button>
