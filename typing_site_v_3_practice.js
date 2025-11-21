@@ -312,7 +312,7 @@ if (tgStart) {
     if (!stream.length) {
       stream = makeRandomWordStream(10);
     }
-    tgRemain = parseInt((limitSec && limitSec.value) || '60', 10) || 60;
+    tgRemain = parseInt((limitSec && limitSec.value) || '300', 10) || 300;
     tgStartTs = Date.now();
     tgKeystrokes = 0;
     tgStarted = true;
