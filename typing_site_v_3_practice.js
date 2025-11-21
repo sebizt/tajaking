@@ -310,7 +310,7 @@ if (tgReady) {
 if (tgStart) {
   tgStart.addEventListener('click', () => {
     if (!stream.length) {
-      stream = makeRandomWordStream(5);
+      stream = makeRandomWordStream(10);
     }
     tgRemain = parseInt((limitSec && limitSec.value) || '60', 10) || 60;
     tgStartTs = Date.now();
