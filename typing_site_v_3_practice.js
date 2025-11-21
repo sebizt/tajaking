@@ -35,7 +35,7 @@ function getWordPool() {
 }
 
 // ✅ 항상 "페어" 단위로 섞어서 N세트 반환
-function makeRandomWordStream(pairCount = 5) {
+function makeRandomWordStream(pairCount = 10) {
   const raw = getWordPool();
   const pairs = [];
 
@@ -288,7 +288,7 @@ function tickTogether() {
 // 단어 세트 불러오기 버튼
 if (tgReady) {
   tgReady.addEventListener('click', () => {
-    stream = makeRandomWordStream(5);  // 👉 세트 개수 (원하면 10으로 늘려도 됨)
+    stream = makeRandomWordStream(10);  // 👉 세트 개수 (원하면 10으로 늘려도 됨)
     streamIdx = 0;
     phase = 0;
     tgCorrectN = 0;
