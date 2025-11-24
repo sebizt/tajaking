@@ -22,7 +22,7 @@ export function parseTxt(raw){
   '선생님', 'teacher',
   'cheonanohsunghighschool', '천안오성고등학교',
   'focus', '집중하세욧',
-  '▷쌤jaja.왕', '너두타자king◀'
+  '▷쌤taja.왕', '너두타자king◀'
 
 
   ];
