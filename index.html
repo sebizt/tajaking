@@ -25,7 +25,7 @@
             </div>
             <div class="row" style="align-items:center; gap:16px; padding:18px">
                 <img src="school-logo.png" alt="Ohseong High School" class="brand-inline"
-                    style="width:64px; height:64px; border-radius:10px" />
+                    style="width:64px; height:64px; border-radius:10px" id="logoReload" />
                 <div style="flex:1">
                     <h1 class="brand-inline" style="margin:0">천안오성고 타자왕은 누구 ?</h1>
                     <p class="muted" style="margin:.25rem 0 0">
@@ -103,6 +103,13 @@
 
     <script>
         // 연도 표시
+document.getElementById('logoReload')?.addEventListener('click', () => {
+localStorage.clear();
+location.reload();
+
+});
+
+
         document.getElementById('yy').textContent = new Date().getFullYear();
 
         (function () {
@@ -193,17 +200,13 @@
                 return;
             }
 
+            // 정렬: WPM 높은 순 → 시간이 짧은 순
             const sorted = [...list].sort((a, b) => {
-    const aa = a.accuracy || 0, bb = b.accuracy || 0;
-    if (bb !== aa) return bb - aa;  // 정확도 높은 순
-
-    const aw = a.wpm || 0, bw = b.wpm || 0;
-    if (bw !== aw) return bw - aw;  // WPM 높은 순
-
-    const at = a.time_sec || 999999, bt = b.time_sec || 999999;
-    return at - bt;  // 시간 짧은 순
-});
-
+                const aw = a.wpm || 0, bw = b.wpm || 0;
+                if (bw !== aw) return bw - aw;
+                const at = a.time_sec || 999999, bt = b.time_sec || 999999;
+                return at - bt;
+            });
 
             // 현재 로그인 유저 (내 기록 강조용)
             let currentUser = null;
@@ -309,6 +312,5 @@
 
     </script>
 </body>
-
 
 </html>
