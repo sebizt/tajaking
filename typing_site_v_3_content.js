@@ -13,16 +13,16 @@ export function parseTxt(raw){
   const paragraphs = raw.replace(/\r\n/g,'\n').split(/\n{2,}/).map(s=>s.trim()).filter(s=>s.length>=120 && s.length<=4000).slice(0,2000);
   const words = [
 
-  'apple', '사과',
-  'banana', '바나나',
+  '月火水', '木金土日',
+  'lIi11|!iIl', ':):-):(;^)',
   'practice', '연습',
   'typing', '타자왕이될거야',   // 대응 한국어가 없어서 기본 번역으로 넣음
-  '속도', 'speeeeeed',
+  '속도', 'speeEeeeEed',
   '인공지능', 'ArtificialIntelligence',
   '선생님', 'teacher',
   'cheonanohsunghighschool', '천안오성고등학교',
   'focus', '집중하세욧',
-  'evidence', '근거'
+  '▷쌤jaja.왕', '너두타자king◀'
 
 
   ];
