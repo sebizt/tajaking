@@ -217,7 +217,7 @@ function renderStream() {
   }
 
   const cur = stream[streamIdx];   // {en, ko}
-  const phaseLabel = phase === 0 ? '학생 먼저 ! (영어)' : '교사 먼저 ! (한국어)';
+  const phaseLabel = phase === 0 ? '학생 차례 !' : '교사 차례 !';
 
 wordStream.innerHTML = `
   <div style="margin-bottom:8px; text-align:center;">
