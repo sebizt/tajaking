@@ -5,16 +5,6 @@ import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.13
     query, where, orderBy, limit, serverTimestamp
   } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyB1hG2LAd-_9w5BWIy-0ZJm4lJON-7F5uM",
-  authDomain: "caoshsai-33b74.firebaseapp.com",
-  projectId: "caoshsai-33b74",
-  storageBucket: "caoshsai-33b74.firebasestorage.app",
-  messagingSenderId: "1081606771573",
-  appId: "1:1081606771573:web:cee3351863106c0ca3393c",
-  measurementId: "G-E1HE9J5013"
-};
-
 // 중복 초기화 방지
 const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -94,4 +84,5 @@ window.TypingReady = (async () => {
     document.dispatchEvent(new CustomEvent('typing-error', { detail: err }));
     throw err;
   }
+
 })();
